@@ -11,7 +11,10 @@ STOCK_CODES = [
     'HK.01024',  # 快手-W
     'HK.03690',  # 美团-W
     'HK.09988',  # 阿里巴巴-W
-    'HK.01810'   # 小米集团-W
+    'HK.01810',   # 小米集团-W
+    'HK.00981',    # 中芯国际
+    'HK.800000',  # 恒生指数
+    'HK.800700'   # 恒生科技指数
 ]
 
 def get_stock_kline(stock_code, days=10, kl_type=KLType.K_DAY, au_type=AuType.QFQ):
@@ -55,18 +58,24 @@ def save_kline_data(stock_code, data, data_dir='./data'):
     
     Args:
         stock_code (str): 股票代码
-        data: K线数据DataFrame
+        data: K线数据 DataFrame
         data_dir (str): 数据保存目录
     """
     # 确保数据目录存在
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
     
-    # 生成文件名：股票代码_kline_日期.jsonl
-    today = datetime.now().strftime('%Y%m%d')
-    stock_symbol = stock_code.replace('.', '_').lower()
-    filename = f"{stock_symbol}_kline_{today}.jsonl"
-    filepath = os.path.join(data_dir, filename)
+    # 子目录：HK
+    sub_dir = stock_code.split('.')[0]
+    month = datetime.now().strftime('%Y%m')
+    full_dir = os.path.join(data_dir, sub_dir, month)
+    if not os.path.exists(full_dir):
+        os.makedirs(full_dir)
+
+    # 生成文件名：股票代码_日期.jsonl
+    today = datetime.now().strftime('%y%m%d')
+    filename = f"{stock_code}_{today}.jsonl"
+    filepath = os.path.join(full_dir, filename)
     
     # 保存数据
     data.to_json(filepath, orient='records', lines=True, force_ascii=False)
